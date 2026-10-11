@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#075b46">
+<meta name="description" content="বাংলা অর্থসহ আল-কুরআন পাঠের অ্যাপ">
+<link rel="manifest" href="manifest.json">
+<title>আল-কুরআন বাংলা</title>
+<style>
+:root{--green:#075b46;--green2:#0d765b;--paper:#f6f8f4;--card:#fff;--ink:#17251f;--muted:#65736b;--line:#e2e9e2}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans Bengali",sans-serif}
+header{background:linear-gradient(135deg,var(--green),var(--green2));color:white;padding:22px 16px 20px;border-radius:0 0 22px 22px}
+h1{font-size:24px;margin:0 0 6px}header p{margin:0;color:#e3f4ec;font-size:14px}
+main{max-width:850px;margin:auto;padding:16px}
+.tools{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap}
+input,select,button{font:inherit;border-radius:12px;border:1px solid var(--line);padding:11px;background:white;color:var(--ink)}
+input{flex:1;min-width:170px}button{cursor:pointer}.primary{background:var(--green);color:#fff;border-color:var(--green)}
+.status{font-size:13px;color:var(--muted);padding:8px 2px}
+.surah-list{display:grid;gap:8px}
+.surah{display:flex;align-items:center;gap:12px;text-align:left;width:100%;border:1px solid var(--line);background:var(--card);padding:13px;border-radius:15px}
+.num{background:#e7f2eb;color:var(--green);width:40px;height:40px;display:grid;place-items:center;border-radius:12px;font-weight:700;flex-shrink:0}
+.surah .name{flex:1}.surah strong{display:block}.sub{font-size:12px;color:var(--muted);margin-top:3px}
+.detail{display:none}.detail.active{display:block}.listing.hidden{display:none}
+.back{margin:4px 0 12px}.surah-title{text-align:center;background:var(--card);border:1px solid var(--line);padding:16px;border-radius:16px;margin-bottom:12px}
+.ayah{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:10px 0}
+.ayah-head{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:13px}
+.arabic{font-family:"Noto Naskh Arabic","Amiri",serif;font-size:28px;line-height:2.05;text-align:right;direction:rtl;margin:15px 0}
+.translation{font-size:17px;line-height:1.85;margin:10px 0}.translit{color:#56645c;font-size:14px;line-height:1.7;margin-top:8px}
+.audio{display:flex;gap:8px;flex-wrap:wrap}.audio button{font-size:13px;padding:8px 10px}
+.notice{font-size:12px;color:var(--muted);line-height:1.7;padding:12px 2px}
+footer{max-width:850px;margin:auto;padding:8px 18px 30px;color:var(--muted);font-size:12px;line-height:1.7}
+@media(min-width:620px){.surah-list{grid-template-columns:1fr 1fr}.arabic{font-size:32px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>☪ আল-কুরআন বাংলা</h1>
+  <p>আরবি আয়াত · বাংলা অর্থ · তিলাওয়াত</p>
+</header>
+<main>
+<section id="listing" class="listing">
+  <div class="tools">
+    <input id="search" placeholder="সূরার নাম বা নম্বর লিখুন…" aria-label="সূরা খুঁজুন">
+    <button id="reload" class="primary">রিফ্রেশ</button>
+  </div>
+  <div id="status" class="status">সূরার তালিকা লোড হচ্ছে…</div>
+  <div id="surahList" class="surah-list"></div>
+</section>
+<section id="detail" class="detail">
+  <button id="back" class="back">← সব সূরা</button>
+  <div id="surahTitle" class="surah-title"></div>
+  <div id="ayahs"></div>
+  <div id="detailStatus" class="status"></div>
+</section>
+<div class="notice">
+  <strong>পাঠ-সংক্রান্ত সতর্কতা:</strong> আরবি পাঠ ও অনুবাদ অনলাইন API থেকে আসে; প্রথমবার ব্যবহারে ইন্টারনেট প্রয়োজন।
+  বাংলা হরফে উচ্চারণের জন্য নির্ভরযোগ্য, অনুমোদিত পূর্ণাঙ্গ ডেটাসেট এই প্যাকেজে এমবেড করা নেই—তাই ভুল উচ্চারণ বানিয়ে দেখানো হয় না।
+  বাংলা অর্থ শোনার বোতামটি ডিভাইসের টেক্সট-টু-স্পিচ ব্যবহার করে; এটি কোনো আলেমের রেকর্ড করা তাফসির বা অনুবাদ-অডিও নয়।
+</div>
+</main>
+<footer>
+  আরবি কুরআন পাঠের উৎস ও লাইসেন্স-সংক্রান্ত তথ্য: <a href="https://tanzil.net/" target="_blank" rel="noopener">Tanzil Project</a>।
+  অনলাইন কনটেন্ট পরিষেবার তথ্য: <a href="https://alquran.cloud/api" target="_blank" rel="noopener">AlQuran Cloud API</a>।
+  অনুবাদের ভাষাগত ও ব্যাখ্যাগত সীমাবদ্ধতা মাথায় রেখে ধর্মীয় সিদ্ধান্তের ক্ষেত্রে নির্ভরযোগ্য আলেমের পরামর্শ নিন।
+</footer>
+<script>
+const API='https://api.alquran.cloud/v1';
+const listing=document.getElementById('listing'), detail=document.getElementById('detail');
+const listEl=document.getElementById('surahList'), statusEl=document.getElementById('status');
+const bnDigits=n=>String(n).replace(/\d/g,d=>'০১২৩৪৫৬৭৮৯'[+d]);
+let surahs=[];
+async function loadSurahs(){
+ statusEl.textContent='সূরার তালিকা লোড হচ্ছে…';
+ try{
+  const r=await fetch(API+'/surah'); if(!r.ok) throw new Error('HTTP '+r.status);
+  const j=await r.json(); if(j.code!==200||!Array.isArray(j.data)) throw new Error('Invalid response');
+  surahs=j.data; renderSurahs(); statusEl.textContent=`মোট ${bnDigits(surahs.length)}টি সূরা পাওয়া গেছে।`;
+ }catch(e){statusEl.textContent='সূরার তালিকা লোড হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।';}
+}
+function renderSurahs(){
+ const q=document.getElementById('search').value.trim().toLowerCase();
+ const found=surahs.filter(s=>String(s.number).includes(q)||s.name.toLowerCase().includes(q)||(s.englishName||'').toLowerCase().includes(q)||(s.englishNameTranslation||'').toLowerCase().includes(q));
+ listEl.innerHTML='';
+ found.forEach(s=>{
+  const b=document.createElement('button');b.className='surah';
+  b.innerHTML=`<span class="num">${bnDigits(s.number)}</span><span class="name"><strong>${escapeHtml(s.name)} · ${escapeHtml(s.englishName)}</strong><span class="sub">${escapeHtml(s.englishNameTranslation||'')} · ${bnDigits(s.numberOfAyahs)} আয়াত</span></span><span aria-hidden="true">›</span>`;
+  b.addEventListener('click',()=>openSurah(s.number));listEl.appendChild(b);
+ });
+ if(!found.length) listEl.innerHTML='<div class="status">কোনো সূরা পাওয়া যায়নি।</div>';
+}
+function escapeHtml(x){return String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+document.getElementById('search').addEventListener('input',renderSurahs);
+document.getElementById('reload').addEventListener('click',loadSurahs);
+document.getElementById('back').addEventListener('click',()=>{detail.classList.remove('active');listing.classList.remove('hidden');window.scrollTo(0,0);});
+async function openSurah(n){
+ listing.classList.add('hidden');detail.classList.add('active');document.getElementById('ayahs').innerHTML='';
+ const s=surahs.find(x=>x.number===n);
+ document.getElementById('surahTitle').innerHTML=`<div style="font-size:26px">${escapeHtml(s?.name||'')}</div><div class="sub">${escapeHtml(s?.englishName||'')} · ${bnDigits(s?.numberOfAyahs||'')} আয়াত</div>`;
+ const ds=document.getElementById('detailStatus');ds.textContent='আয়াত লোড হচ্ছে…';window.scrollTo(0,0);
+ try{
+  const r=await fetch(`${API}/surah/${n}/editions/quran-uthmani,bn.bengali,en.transliteration,ar.alafasy`);
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  const j=await r.json(); if(j.code!==200||!Array.isArray(j.data)||j.data.length<3) throw new Error('Unexpected API response');
+  const editions=j.data;
+  const arabic=editions.find(x=>x.edition.identifier==='quran-uthmani')||editions[0];
+  const bengali=editions.find(x=>x.edition.identifier==='bn.bengali');
+  const translit=editions.find(x=>x.edition.identifier==='en.transliteration');
+  const audio=editions.find(x=>x.edition.identifier==='ar.alafasy');
+  if(!bengali) throw new Error('বাংলা অনুবাদ উৎসে পাওয়া যায়নি');
+  const wrap=document.getElementById('ayahs');wrap.innerHTML='';
+  arabic.ayahs.forEach((a,i)=>{
+   const bn=bengali.ayahs[i];const tr=translit?.ayahs?.[i];const au=audio?.ayahs?.[i];
+   const card=document.createElement('article');card.className='ayah';
+   card.innerHTML=`<div class="ayah-head"><span>আয়াত ${bnDigits(a.numberInSurah)}</span><span>${a.juz?`পারা ${bnDigits(a.juz)}`:''}</span></div>
+    <div class="arabic" lang="ar" dir="rtl">${escapeHtml(a.text)} ۝</div>
+    ${tr?`<div class="translit"><strong>উচ্চারণ-সহায়িকা (লাতিন):</strong> ${escapeHtml(tr.text)}</div>`:''}
+    <div class="translation"><strong>বাংলা অর্থ:</strong> ${escapeHtml(bn?.text||'এই আয়াতের বাংলা অর্থ পাওয়া যায়নি।')}</div>
+    <div class="audio">${au?.audio?`<button class="primary" data-audio="${escapeHtml(au.audio)}">▶ আরবি তিলাওয়াত</button>`:''}
+    <button data-speak="${escapeHtml(bn?.text||'')}">🔊 বাংলা অর্থ পড়ে শোনান</button></div>`;
+   card.querySelectorAll('[data-audio]').forEach(btn=>btn.addEventListener('click',()=>playAudio(btn.dataset.audio,btn)));
+   card.querySelectorAll('[data-speak]').forEach(btn=>btn.addEventListener('click',()=>speakBangla(btn.dataset.speak)));
+   wrap.appendChild(card);
+  });
+  ds.textContent=`${bnDigits(arabic.ayahs.length)}টি আয়াত লোড হয়েছে।`;
+ }catch(e){ds.textContent='আয়াত লোড করা যায়নি। ইন্টারনেট/API সমস্যা হতে পারে। আবার চেষ্টা করুন।';}
+}
+let currentAudio=null;
+function playAudio(url,btn){
+ if(currentAudio){currentAudio.pause();currentAudio=null;}
+ currentAudio=new Audio(url);currentAudio.play().catch(()=>alert('অডিও চালানো যায়নি। ইন্টারনেট সংযোগ পরীক্ষা করুন।'));
+}
+function speakBangla(text){
+ if(!('speechSynthesis' in window)){alert('এই ব্রাউজারে বাংলা টেক্সট-টু-স্পিচ সমর্থিত নয়।');return;}
+ speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='bn-BD';u.rate=.85;speechSynthesis.speak(u);
+}
+if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+loadSurahs();
+</script>
+</body>
+</html>

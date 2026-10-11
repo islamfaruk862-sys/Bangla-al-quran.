@@ -1,0 +1,11 @@
+{
+  "name": "আল-কুরআন বাংলা",
+  "short_name": "কুরআন বাংলা",
+  "description": "আরবি কুরআন ও বাংলা অর্থ",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f6f8f4",
+  "theme_color": "#075b46",
+  "lang": "bn",
+  "icons": []
+}
